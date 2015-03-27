@@ -1,8 +1,15 @@
 module Main where
 
+import Control.Applicative
+
 type Variable = String
 
-data Term = Variable Variable | Abstraction String Command deriving (Show,Eq,Ord)
+data Term = 
+    Variable Variable |
+    Abstraction String Command |
+    Pair Term Term |
+    Match Variable Variable Command
+        deriving (Show,Eq,Ord)
 
 data Command = Command Term Term deriving (Show,Eq,Ord)
 
@@ -11,13 +18,23 @@ data Type = Usual Connective | Dual Connective
 data Connective = Unit
 
 run :: Command -> [Command]
-run c = concatMap run [runC c,runC (swap c)]
+run c = runLeft c <|> runRight c
 
-swap :: Command -> Command
-swap (Command l r) = Command r l
+runLeft :: Command -> [Command]
+runLeft (Command (Abstraction x c) t) = pure (substituteC t x c)
+runLeft _ = empty
 
-runC :: Command -> Command
-runC (Command (Abstraction x c) t) = substituteC t x c
+runRight :: Command -> [Command]
+runRight (Command t (Abstraction x c)) = pure (substituteC t x c)
+runRight _ = empty
+
+runPairLeft :: Command -> [Command]
+runPairLeft (Command (Match x y c) (Pair t u)) = pure (substituteC t x (substituteC u y c))
+runPairLeft _ = []
+
+runPairRight :: Command -> [Command]
+runPairRight (Command (Pair t u) (Match x y c)) = pure (substituteC t x (substituteC u y c))
+runPairRight _ = []
 
 substituteC :: Term -> Variable -> Command -> Command
 substituteC t x (Command l r) = Command (substituteT t x l) (substituteT t x r)
