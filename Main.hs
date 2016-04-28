@@ -13,11 +13,19 @@ type Label =
 
 data Value =
   Variable Variable |
-  Continuation Label Command
+  Continuation Label Command |
+  Pair Value Value |
+  CaseL Value | CaseR Value |
+  Selector Label Command Label Command |
+  Methods Label Label Command
 
 data Computation =
   Goto Label |
-  Abstraction Variable Command
+  Abstraction Variable Command |
+  Match Variable Variable Command |
+  Switch Variable Command Variable Command |
+  DispatchL Computation | DispatchR Computation |
+  Object Computation Computation
 
 data Command =
   Run Value Computation
