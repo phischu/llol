@@ -3,38 +3,29 @@ module Main where
 import Data.List (sortBy, groupBy)
 import Data.Ord (comparing)
 import Data.Function (on)
+import Control.Applicative (empty)
 
 -- Tensor, Par, With, Plus, Top, Unit, Bottom, Void
 -- * | & + ^ () {}
 
-type Variable =
-  String
-
-data Statement = (:=) LHS RHS deriving (Show, Eq, Ord)
-
-data LHS =
-  Bind Variable |
-  Match Variable Variable |
-  Copy Variable Variable
-    deriving (Show, Eq, Ord)
-
-data RHS =
-  Use Variable |
-  Pair Variable Variable |
-  Share Variable Variable
-    deriving (Show, Eq, Ord)
-
-type Program = [Statement]
-
+type Variable = String
 
 data Cell =
   Wire Variable Variable |
   Construct Variable Variable Variable |
   Duplicate Variable Variable Variable
     deriving (Show, Eq, Ord)
+
 -- TODO: Delete Variable
+-- TODO: Duplicate Int Variable Variable Variable
+
 type InteractionNet = [Cell]
 
+findActiveWires :: [Cell] -> [(Variable, Cell)]
+findActiveWires wires = do
+  Wire x y <- wires
+  Wire a b <- wires
+  if (x == a) then (return (x, Wire y b)) else empty
 
 act :: Cell -> Cell -> [Cell]
 act (Wire _ y) (Wire _ z) = [Wire y z]
@@ -62,7 +53,21 @@ reduce [cell1, cell2] = act cell1 cell2
 reduce _ = error "reduce long list"
 
 step :: [Cell] -> [Cell]
-step = map flipWire . concatMap reduce . groupByPrincipalPort
+step = map flipWire . concatMap reduce . groupByPrincipalPort . substituteWires
+
+substituteWires :: [Cell] -> [Cell]
+substituteWires [] = []
+substituteWires (Wire x y : cells) = substituteWire x y cells
+substituteWires (cell : cells) = cell : substituteWires cells
+
+substituteWire :: Variable -> Variable -> [Cell] -> [Cell]
+substituteWire x y (Wire a b : cells)
+  | x == b = Wire a y : cells
+  | otherwise = Wire a b : substituteWire x y cells
+substituteWire x y (cell : cells) =
+  cell : substituteWire x y cells
+substituteWire x y [] =
+  Wire x y : []
 
 groupByPrincipalPort :: [Cell] -> [[Cell]]
 groupByPrincipalPort =
@@ -78,7 +83,8 @@ flipWire (Wire x y) = Wire y x
 flipWire cell = cell
 
 evaluate :: InteractionNet -> InteractionNet
-evaluate = step . step . step . step . step . step . step . step
+evaluate = steps . steps . steps . steps where
+  steps = step . step . step . step . step . step . step . step
 
 tick :: Variable -> (Variable, Variable)
 tick x = (x ++ "1", x ++ "2")
