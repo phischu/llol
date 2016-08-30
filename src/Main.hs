@@ -32,7 +32,7 @@ data Cell =
   Construct Variable Variable Variable |
   Duplicate Variable Variable Variable
     deriving (Show, Eq, Ord)
-
+-- TODO: Delete Variable
 type InteractionNet = [Cell]
 
 
@@ -62,7 +62,7 @@ reduce [cell1, cell2] = act cell1 cell2
 reduce _ = error "reduce long list"
 
 step :: [Cell] -> [Cell]
-step = concatMap reduce . groupByPrincipalPort
+step = map flipWire . concatMap reduce . groupByPrincipalPort
 
 groupByPrincipalPort :: [Cell] -> [[Cell]]
 groupByPrincipalPort =
@@ -73,8 +73,12 @@ principalPort (Wire x _) = x
 principalPort (Construct x _ _) = x
 principalPort (Duplicate x _ _) = x
 
+flipWire :: Cell -> Cell
+flipWire (Wire x y) = Wire y x
+flipWire cell = cell
+
 evaluate :: InteractionNet -> InteractionNet
-evaluate = step
+evaluate = step . step . step . step . step . step . step . step
 
 tick :: Variable -> (Variable, Variable)
 tick x = (x ++ "1", x ++ "2")
@@ -89,8 +93,28 @@ test' = [
   Wire "p1" "a1",
   Wire "p2" "a2"]
 
+twice :: InteractionNet
+twice = [
+  Construct "twice" "f" "ff",
+  Duplicate "f" "f1" "f2",
+  Construct "f1" "f1x" "f1r",
+  Construct "f2" "f2x" "f2r",
+  Wire "f1r" "f2x",
+  Construct "ff" "f1x" "f2r"]
+
+testTwice :: InteractionNet
+testTwice = [
+  Construct "i" "x" "r",
+  Wire "x" "r",
+  Construct "twice" "i" "test"] ++ twice
+
+testTwice' :: InteractionNet
+testTwice' = [
+  Construct "test" "x" "r",
+  Wire "x" "r"]
+
 main :: IO ()
 main = do
-  print (evaluate test)
-  print (evaluate test == test')
+  print (evaluate testTwice)
+  print (evaluate testTwice == testTwice')
 
