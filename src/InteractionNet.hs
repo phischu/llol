@@ -1,4 +1,4 @@
-module Main where
+module InteractionNet where
 
 import Sequent ()
 
@@ -81,39 +81,4 @@ evaluate net = case step net of
 
 tick :: Variable -> (Variable, Variable)
 tick x = (x ++ "1", x ++ "2")
-
-test :: InteractionNet
-test = [
-  Construct "p" "p1" "p2",
-  Construct "p" "a1" "a2"]
-
-test' :: InteractionNet
-test' = [
-  Wire "p1" "a1",
-  Wire "p2" "a2"]
-
-twice :: InteractionNet
-twice = [
-  Construct "twice" "f" "ff",
-  Duplicate "f" "f1" "f2",
-  Construct "f1" "f1x" "f1r",
-  Construct "f2" "f2x" "f2r",
-  Wire "f1r" "f2x",
-  Construct "ff" "f1x" "f2r"]
-
-testTwice :: InteractionNet
-testTwice = [
-  Construct "i" "x" "r",
-  Wire "x" "r",
-  Construct "twice" "i" "test"] ++ twice
-
-testTwice' :: InteractionNet
-testTwice' = [
-  Construct "test" "x" "r",
-  Wire "x" "r"]
-
-main :: IO ()
-main = do
-  print (evaluate testTwice)
-  print (evaluate testTwice == testTwice')
 

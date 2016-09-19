@@ -12,8 +12,8 @@ build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
 
-executable llol
-  main-is:             Main.hs
+library
+  exposed-modules:     InteractionNet
   other-modules:       Sequent
   -- other-extensions:    
   build-depends:       base >=4.7 && <5.0,
@@ -25,9 +25,10 @@ executable llol
 test-suite test
   type:                exitcode-stdio-1.0
   main-is:             Test.hs
-  other-modules:       Sequent
+  -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <5.0,
+                       llol,
                        hspec >=2.2.3 && <2.3,
                        morte >=1.6 && <1.7
   hs-source-dirs:      src
