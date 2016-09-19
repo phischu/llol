@@ -4,31 +4,24 @@ module Sequent where
 -- * | & + ^ () {}
 
 
-data LHS v =
-  Bind v |
-  Match v v |
-  Copy v v |
-  Open (RHS v)
+data Statement v =
+  Wire v v |
+  Pair v v v |
+  Match v v v |
+  Copy v v v |
+  Share v v v |
+  Open v v |
+  Close v v
 
-data RHS v =
-  Use v |
-  Pair v v |
-  Share v v |
-  Close (LHS v)
-
-data Statement = (:=) (LHS String) (RHS String)
-
-data Let = Let [Statement] (RHS String)
-data Com = Com (LHS String) [Statement]
-
-test :: [Statement]
+test :: [Statement String]
 test = [
-  Open (Use "x") := Use "c",
-  Bind "i" := Close (Match "x" "c"),
-  Open (Pair "5" "rc") := Use "i",
-  Bind "return" := Close (Bind "rc")]
+  Open "t" "i",
+  Match "x" "c" "i",
+  Close "x" "c",
+  Pair "p" "5" "r",
+  Close "p" "t"]
 
-test' :: [Statement]
+test' :: [Statement String]
 test' = [
-  Bind "return" := Use "5"]
+  Wire "5" "r"]
 

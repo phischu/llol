@@ -1,5 +1,7 @@
 module Main where
 
+import Sequent ()
+
 import Data.Maybe (listToMaybe)
 import Control.Monad (guard)
 
