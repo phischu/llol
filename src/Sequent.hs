@@ -2,33 +2,36 @@ module Sequent where
 
 -- Tensor, Par, With, Plus, Top, Unit, Bottom, Void
 -- * | & + ^ () {}
-
+{-
 import Data.Maybe (
   listToMaybe, maybeToList)
 import Control.Monad (
   guard)
 
 
-data Statement =
-  Wire Variable Variable |
-  Introduction Introduction |
-  Elimination Elimination
+data Equation = Equation LHS RHS
 
--- TODO: Remove wire (wire is variable)
+data LHS =
+  Bind Variable |
+  Match Variable Variable |
+  Copy Variable Variable |
+  Force Variable
 
-data Introduction =
-  Pair Variable Variable Variable |
-  Copy Variable Variable Variable |
-  Open Variable Variable |
-  Input Variable
+data RHS =
+  Use Variable |
+  Pair Variable Variable |
+  Share Variable Variable |
+  Thunk Variable
 
-data Elimination =
-  Match Variable Variable Variable |
-  Share Variable Variable Variable |
-  Close Variable Variable |
-  Output Variable
+data Agent =
+  LeftAgent Variable RHS |
+  RightAgent Variable LHS
 
 type Variable = String
+
+
+type Statement = Equation
+
 
 step :: [Statement] -> Maybe [Statement]
 step statements = listToMaybe (do
@@ -39,11 +42,6 @@ step statements = listToMaybe (do
 
 
 act :: Statement -> Statement -> Maybe [Statement]
-act (Introduction introduction) (Elimination elimination) =
-  case (introduction, elimination) of
-    (Pair p p1 p2, Match m1 m2 m) -> do
-      guard (p == m)
-      return [Wire p1 m2, Wire p2 m2]
 act _ _ = Nothing
 
 
@@ -84,3 +82,4 @@ test' = [
   wire "5" "r",
   output "r"]
 
+-}

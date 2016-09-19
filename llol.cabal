@@ -17,6 +17,7 @@ library
   other-modules:       Sequent
   -- other-extensions:    
   build-depends:       base >=4.7 && <5.0,
+                       containers >=0.5.7.1 && <0.6,
                        morte >=1.6 && <1.7
   hs-source-dirs:      src
   ghc-options:         -Wall
@@ -28,6 +29,7 @@ test-suite test
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <5.0,
+                       containers >=0.5.7.1 && <0.6,
                        llol,
                        hspec >=2.2.3 && <2.3,
                        morte >=1.6 && <1.7
