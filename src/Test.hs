@@ -2,7 +2,7 @@ module Main where
 
 
 import InteractionNet (
-  InteractionNet, Environment, Statement(..), Term(..), evaluate, emptyEnvironment)
+  InteractionNet, Environment, Statement(..), Term(..), evaluate, execEvaluator)
 
 import Test.Hspec (
   hspec, describe, specify,
@@ -20,7 +20,7 @@ main = hspec (do
 
 
 evaluatesTo :: InteractionNet -> Environment -> Expectation
-evaluatesTo net environment = evaluate emptyEnvironment net `shouldBe` environment
+evaluatesTo net environment = execEvaluator (evaluate net) `shouldBe` environment
 
 test :: InteractionNet
 test = [
@@ -49,6 +49,6 @@ testTwice = [
 
 testTwice' :: Environment
 testTwice' = Map.fromList [
-  ("test", Construct "x" "r"),
-  ("x", Variable "r")]
+  ("f1x", Variable "f2r"),
+  ("test", Construct "f1x" "f2r")]
 
