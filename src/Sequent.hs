@@ -41,7 +41,6 @@ substituteStep statements = listToMaybe (do
 
 substitute :: Statement -> Statement -> Maybe Statement
 substitute (t1 := Use x1) (Bind x2 := t2) = guard (x1 == x2) >> (Just (t1 := t2))
-substitute (Bind x1 := t1) (t2 := Use x2) = guard (x1 == x2) >> (Just (t2 := t1))
 substitute _ _ = Nothing
 
 actStep :: [Statement] -> Maybe [Statement]
