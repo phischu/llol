@@ -1,48 +1,59 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Sequent where
 
 -- Tensor, Par, With, Plus, Top, Unit, Bottom, Void
 -- * | & + ^ () {}
-{-
+
 import Data.Maybe (
   listToMaybe, maybeToList)
 import Control.Monad (
-  guard)
+  guard, mplus)
 
 
-data Equation = Equation LHS RHS
+data Statement =
+  (:=) Binder Value
+    deriving (Show)
 
-data LHS =
+data Binder =
   Bind Variable |
   Match Variable Variable |
   Copy Variable Variable |
-  Force Variable
+  Force Value
+    deriving (Show)
 
-data RHS =
+data Value =
   Use Variable |
   Pair Variable Variable |
   Share Variable Variable |
-  Thunk Variable
-
-data Agent =
-  LeftAgent Variable RHS |
-  RightAgent Variable LHS
+  Thunk Binder
+    deriving (Show)
 
 type Variable = String
 
 
-type Statement = Equation
-
-
-step :: [Statement] -> Maybe [Statement]
-step statements = listToMaybe (do
+substituteStep :: [Statement] -> Maybe [Statement]
+substituteStep statements = listToMaybe (do
   (statement1, statements1) <- select statements
   (statement2, statements2) <- select statements1
-  statements' <- maybeToList (act statement1 statement2)
-  return (statements' ++ statements2))
+  statement' <- maybeToList (substitute statement1 statement2)
+  return ([statement'] ++ statements2))
 
 
-act :: Statement -> Statement -> Maybe [Statement]
-act _ _ = Nothing
+substitute :: Statement -> Statement -> Maybe Statement
+substitute (t1 := Use x1) (Bind x2 := t2) = guard (x1 == x2) >> (Just (t1 := t2))
+substitute (Bind x1 := t1) (t2 := Use x2) = guard (x1 == x2) >> (Just (t2 := t1))
+substitute _ _ = Nothing
+
+actStep :: [Statement] -> Maybe [Statement]
+actStep statements = listToMaybe (do
+  (statement1, statements1) <- select statements
+  statements' <- maybeToList (act statement1)
+  return (statements' ++ statements1))
+
+act :: Statement -> Maybe [Statement]
+act (Match x1 x2 := Pair p1 p2) = Just [Bind x1 := Use p1, Bind x2 := Use p2]
+act (Force v1 := Thunk x2) = Just [x2 := v1]
+act _ = Nothing
 
 
 select :: [a] -> [(a, [a])]
@@ -51,35 +62,23 @@ select (a : as) = [(a, as)] ++ map (\(b, bs) -> (b, a : bs)) (select as)
 
 
 evaluate :: [Statement] -> [Statement]
-evaluate statements = case step statements of
+evaluate statements = case mplus (substituteStep statements) (actStep statements) of
   Nothing -> statements
   Just statements' -> evaluate statements'
 
 
-input x = Introduction (Input x)
-open x y = Introduction (Open x y)
-match x y z = Elimination (Match x y z)
-close x y = Elimination (Close x y)
-pair x y z = Introduction (Pair x y z)
-output x = Elimination (Output x)
-wire x y = Wire x y
-
-
 test :: [Statement]
 test = [
-  input "5",
-  open "t" "i",
-  match "x" "c" "i",
-  close "x" "c",
-  pair "p" "5" "r",
-  close "p" "t",
-  output "r"]
+  Bind "i" := Thunk (Match "x" "r"),
+  Force (Use "x") := (Use "r"),
+  Bind "o" := Thunk (Bind "hi"),
+  Bind "p" := Pair "5" "o",
+  Force (Use "p") := Use "i"]
 
 
 test' :: [Statement]
 test' = [
-  input "5",
-  wire "5" "r",
-  output "r"]
+  Bind "o" := Use "5"]
 
--}
+
+
