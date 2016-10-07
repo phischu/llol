@@ -24,9 +24,25 @@ library
   ghc-options:         -Wall
   default-language:    Haskell2010
 
-test-suite test
+test-suite test-interaction-net
   type:                exitcode-stdio-1.0
-  main-is:             Test.hs
+  main-is:             TestInteractionNet.hs
+  -- other-modules:       
+  -- other-extensions:    
+  build-depends:       base >=4.7 && <5.0,
+                       containers >=0.5.7.1 && <0.6,
+                       transformers >=0.5.2.0 && <0.6,
+                       llol,
+                       hspec >=2.2.3 && <2.3,
+                       morte >=1.6 && <1.7
+  hs-source-dirs:      src
+  ghc-options:         -Wall
+  default-language:    Haskell2010
+
+
+test-suite test-sequent
+  type:                exitcode-stdio-1.0
+  main-is:             TestSequent.hs
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.7 && <5.0,

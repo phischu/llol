@@ -10,23 +10,25 @@ import Control.Monad (
   guard, mplus)
 
 
+-- Actually we have four (three) kinds of statements. Perhaps make that explicit?
+-- this would also prevent (Force (Thunk (Force (...))))
 data Statement =
   (:=) Binder Value
-    deriving (Show)
+    deriving (Show, Eq, Ord)
 
 data Binder =
   Bind Variable |
   Match Variable Variable |
   Copy Variable Variable |
   Force Value
-    deriving (Show)
+    deriving (Show, Eq, Ord)
 
 data Value =
   Use Variable |
   Pair Variable Variable |
   Share Variable Variable |
   Thunk Binder
-    deriving (Show)
+    deriving (Show, Eq, Ord)
 
 type Variable = String
 
@@ -64,20 +66,5 @@ evaluate :: [Statement] -> [Statement]
 evaluate statements = case mplus (substituteStep statements) (actStep statements) of
   Nothing -> statements
   Just statements' -> evaluate statements'
-
-
-test :: [Statement]
-test = [
-  Bind "i" := Thunk (Match "x" "r"),
-  Force (Use "x") := (Use "r"),
-  Bind "o" := Thunk (Bind "hi"),
-  Bind "p" := Pair "5" "o",
-  Force (Use "p") := Use "i"]
-
-
-test' :: [Statement]
-test' = [
-  Bind "o" := Use "5"]
-
 
 
