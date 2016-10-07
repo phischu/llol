@@ -7,7 +7,7 @@ module Sequent where
 import Data.Maybe (
   listToMaybe, maybeToList)
 import Control.Monad (
-  guard, mplus)
+  guard, mplus, msum)
 
 
 -- Actually we have four (three) kinds of statements. Perhaps make that explicit?
@@ -43,13 +43,28 @@ substituteStep statements = listToMaybe (do
 
 
 substitute :: Statement -> Statement -> Maybe Statement
-substitute (t1 := Use x1) (Bind x2 := t2) =
+substitute statement1 statement2 = msum [
+  substituteNormal statement1 statement2,
+  substituteThunk statement1 statement2,
+  substituteForce statement1 statement2]
+
+substituteNormal :: Statement -> Statement -> Maybe Statement
+substituteNormal (t1 := Use x1) (Bind x2 := t2) =
   guard (x1 == x2) >> (Just (t1 := t2))
-substitute (t1 := Thunk (Bind x1)) (t2 := Use x2) =
+substituteNormal _ _ =
+  Nothing
+
+substituteThunk :: Statement -> Statement -> Maybe Statement
+substituteThunk (t1 := Use x1) (t2 := Thunk (Bind x2)) =
   guard (x1 == x2) >> (Just (t1 := Thunk t2))
-substitute (Bind x1 := t1) (Force (Use x2) := t2) =
+substituteThunk _ _ =
+  Nothing
+
+substituteForce :: Statement -> Statement -> Maybe Statement
+substituteForce (Force (Use x1) := t1) (Bind x2 := t2) =
   guard (x1 == x2) >> (Just (Force t1 := t2))
-substitute _ _ = Nothing
+substituteForce _ _ =
+  Nothing
 
 actStep :: [Statement] -> Maybe [Statement]
 actStep statements = listToMaybe (do

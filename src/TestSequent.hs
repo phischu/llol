@@ -13,6 +13,7 @@ main :: IO ()
 main = hspec (do
   describe "sequent" (do
     specify "test" (evaluate test `shouldBe` test')
+    specify "testOnce" (evaluate testOnce `shouldBe` testOnce')
     specify "testTwice" (evaluate testTwice `shouldBe` testTwice')
     specify "testSubstitution" (evaluate testSubstitution `shouldBe` testSubstitution')))
 
@@ -28,6 +29,25 @@ test = [
 test' :: [Statement]
 test' = [
   Bind "hi" := Use "5"]
+
+
+once :: [Statement]
+once = [
+  Bind "once" := Thunk (Match "f" "ff"),
+  Match "fx" "fr" := Use "f",
+  Force (Use "ff") := Pair "fx" "fr"]
+
+testOnce :: [Statement]
+testOnce = [
+  Bind "i" := Thunk (Match "x" "r"),
+  Force (Use "r") := Use "x",
+  Force (Use "once") := Pair "i" "test"] ++ once
+
+testOnce' :: [Statement]
+testOnce' = [
+  Force (Use "f2r'") := Use "f1x'",
+  Bind "test" := Thunk (Match "f1x'" "f2r'")]
+
 
 twice :: [Statement]
 twice = [
@@ -57,5 +77,5 @@ testSubstitution = [
 
 testSubstitution' :: [Statement]
 testSubstitution' = [
-  (:=) (Force (Thunk (Match "f1x'" "f2r'"))) (Use "test")]
+  (:=) (Match "f1x'" "f2r'") (Use "test")]
 
