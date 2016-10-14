@@ -45,5 +45,12 @@ morteNetForward continuation (App function argument) = do
   tellNet [Variable functionVariable := Construct argumentVariable continuation]
 
 morteNetBackward :: Expr X -> Generator Variable
-morteNetBackward (Var variable) = return (unpack (pretty variable))
+morteNetBackward (Var variable) = do
+  return (unpack (pretty variable))
+morteNetBackward (App function argument) = do
+  functionContinuation <- morteNetBackward function
+  argumentContinuation <- morteNetBackward argument
+  continuation <- freshContinuation
+  tellNet [Variable functionContinuation := Construct argumentContinuation continuation]
+  return continuation
 
