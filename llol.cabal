@@ -14,12 +14,14 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     InteractionNet
-  other-modules:       Sequent
+  other-modules:       Sequent,
+                       Lambda
   -- other-extensions:    
   build-depends:       base >=4.7 && <5.0,
                        containers >=0.5.7.1 && <0.6,
                        transformers >=0.5.2.0 && <0.6,
-                       morte >=1.6 && <1.7
+                       morte >=1.6 && <1.7,
+                       text >=1.2.2.1 && <1.3
   hs-source-dirs:      src
   ghc-options:         -Wall
   default-language:    Haskell2010
@@ -34,7 +36,8 @@ test-suite test-interaction-net
                        transformers >=0.5.2.0 && <0.6,
                        llol,
                        hspec >=2.2.3 && <2.3,
-                       morte >=1.6 && <1.7
+                       morte >=1.6 && <1.7,
+                       text >=1.2.2.1 && <1.3
   hs-source-dirs:      src
   ghc-options:         -Wall
   default-language:    Haskell2010
@@ -50,7 +53,25 @@ test-suite test-sequent
                        transformers >=0.5.2.0 && <0.6,
                        llol,
                        hspec >=2.2.3 && <2.3,
-                       morte >=1.6 && <1.7
+                       morte >=1.6 && <1.7,
+                       text >=1.2.2.1 && <1.3
+  hs-source-dirs:      src
+  ghc-options:         -Wall
+  default-language:    Haskell2010
+
+
+test-suite test-lambda
+  type:                exitcode-stdio-1.0
+  main-is:             TestLambda.hs
+  -- other-modules:       
+  -- other-extensions:    
+  build-depends:       base >=4.7 && <5.0,
+                       containers >=0.5.7.1 && <0.6,
+                       transformers >=0.5.2.0 && <0.6,
+                       llol,
+                       hspec >=2.2.3 && <2.3,
+                       morte >=1.6 && <1.7,
+                       text >=1.2.2.1 && <1.3
   hs-source-dirs:      src
   ghc-options:         -Wall
   default-language:    Haskell2010
