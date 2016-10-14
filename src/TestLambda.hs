@@ -63,11 +63,9 @@ twiceNet :: InteractionNet
 twiceNet = [
   Construct "f" "r0" := Variable "twice",
   Construct "x" "r1" := Variable "r0",
-  Variable "f" := Duplicate "f1" "f2",
-  Variable "f1" := Construct "f1x" "f1r",
-  Variable "f2" := Construct "f2x" "f2r",
-  Variable "f1r" := Variable "f2x"]
-
+  Variable "f2" := Construct "x" "r2",
+  Variable "f1" := Construct "r2" "r1",
+  Duplicate "f1" "f2" := Variable "f"]
 
 
 no :: a
